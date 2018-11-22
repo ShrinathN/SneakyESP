@@ -1,4 +1,4 @@
-/* Name: Shrinath Nimare
+/* Author: Shrinath Nimare <shrinath.nimare@gmail.com>
  * Time: Fri Nov 23 00:10:23 IST 2018
  * Description: This file is here to implement the functions in status.h
 */

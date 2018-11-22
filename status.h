@@ -1,4 +1,4 @@
-/* Name: Shrinath Nimare
+/* Author: Shrinath Nimare <shrinath.nimare@gmail.com>
  * Time: Fri Nov 23 00:10:23 IST 2018
  * Description: This file contains all the definitions for the statuse. Pretty self explanatory.
 */
@@ -25,11 +25,11 @@ enum _connectionStatus_
 }connectionStatus;
 
 //global status functions
-void Status_setGlobalStatus(enum _globalStatus_ temp);
+void Status_setGlobalStatus(enum _globalStatus_);
 uint8 Status_getGlobalStatus(void);
 
 //connection status functions
-void Status_setConnectionStatus(enum _connectionStatus_ temp);
+void Status_setConnectionStatus(enum _connectionStatus_);
 uint8 Status_getConnectionStatus(void);
 
 
