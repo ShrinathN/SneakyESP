@@ -8,7 +8,7 @@
 #include "user_config.h"
 
 //this is meant to serve as a global status notifier
-enum _globalStatus_
+static enum _globalStatus_
 {
     GLOBALSTATUS_INIT,
     GLOBALSTATUS_INITAP,
@@ -16,7 +16,7 @@ enum _globalStatus_
 }globalStatus;
 
 //this is meant to serve as a global connection status notifier
-enum _connectionStatus_
+static enum _connectionStatus_
 {
     CONNECTIONSTATUS_NOTCONNECTED,
     CONNECTIONSTATUS_LISTENING,
