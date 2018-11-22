@@ -23,3 +23,7 @@
 #include "user_interface.h"
 #include "espconn.h"
 #include "wpa2_enterprise.h"
+
+//GLOBAL MACROS
+#define AP_SSID "SneakyESPConfig"
+#define AP_PASSWORD "987654321"
