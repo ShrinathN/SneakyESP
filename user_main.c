@@ -1,8 +1,11 @@
 #include "user_config.h"
 #include "connection.h"
+#include "status.h"
 #define SET_BAUD(UART_NUMBER, BAUD_RATE) uart_div_modify(UART_NUMBER, UART_CLK_FREQ / BAUD_RATE)
 
 void user_init(void)
 {
-    Connection_InitConnection();
+    Status_setGlobalStatus(GLOBALSTATUS_INIT);
+    Status_setConnectionStatus(CONNECTIONSTATUS_NOTCONNECTED);
+    Connection_InitWifiConnection();
 }
