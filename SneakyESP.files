@@ -1,4 +1,5 @@
 Makefile
+setup_page.html
 setupconnection.c
 setupconnection.h
 setupsocketconfig.c

@@ -9,14 +9,29 @@
  * Input: none
  * Output: none
 */
-void SetupSocketConfig_socketSetup(void)
+void ICACHE_FLASH_ATTR SetupSocketConfig_SocketSetup(void)
 {
     esp.type = ESPCONN_TCP;
     esp.state = ESPCONN_NONE;
     esp.proto.tcp = (esp_tcp *)&tcp;
-    esp.proto.tcp->local_port = (int)espconn_port(); //gets an avaliable port on its own
+    esp.proto.tcp->local_port = 80; //starts listening on port 80
     espconn_accept(&esp); //setting esp as the espconn
-    espconn_regist_connectcb(&esp, SetupSocketConfig_socketConnectCallbackFunction);
-    espconn_regist_disconcb(&esp, SetupSocketConfig_socketDisconnectCallbackFunction);
-    espconn_regist_recvcb(&esp, SetupSocketConfig_socketDataRecvCallbackFunction);
+    espconn_regist_connectcb(&esp, SetupSocketConfig_SocketConnectCallbackFunction);
+//    espconn_regist_disconcb(&esp, SetupSocketConfig_SocketDisconnectCallbackFunction);
+//    espconn_regist_recvcb(&esp, SetupSocketConfig_SocketDataRecvCallbackFunction);
+}
+
+/* Description: This is the function called when the espconn struct esp has connected to a host
+ * It calls a function to send the hard coded web page over
+ * Input: pointer arg, points to the espconn structure being dealt with here
+ * Output: none
+*/
+void ICACHE_FLASH_ATTR SetupSocketConfig_SocketConnectCallbackFunction(void * arg)
+{
+    SetupSocketConfig_SendStaticWebpage((struct espconn *)arg);
+}
+
+void ICACHE_FLASH_ATTR SetupSocketConfig_SendStaticWebpage(struct espconn * my_esp)
+{
+    espconn_send(my_esp, StaticWebPageBuffer, (uint16)os_strlen((char *)StaticWebPageBuffer));
 }

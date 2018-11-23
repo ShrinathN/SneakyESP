@@ -25,10 +25,10 @@ void ICACHE_FLASH_ATTR SetupConnection_InitWifiConnection()
  * Input: none
  * Output: none
 */
-void SetupConnection_WifiEventHandlerCallbackFunction(System_Event_t * event)
+void ICACHE_FLASH_ATTR SetupConnection_WifiEventHandlerCallbackFunction(System_Event_t * event)
 {
     if(event->event == EVENT_SOFTAPMODE_STACONNECTED) //executed when a station has connected to the access point
     {
-        SetupSocketConfig_socketSetup();
+        SetupSocketConfig_socketSetup(); //will setup the http server
     }
 }

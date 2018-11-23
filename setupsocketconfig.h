@@ -10,11 +10,29 @@
 static struct espconn esp; //global espconn
 static esp_tcp tcp; //global esp_tcp
 
+static uint8 StaticWebPageBuffer[] =
+        "HTTP/1.1 200 OK\n"
+        "Content-Type: text/html\n"
+        "Connection: close\n\n"
+        "<!DOCTYPE html>"
+        "<html>"
+        "<head><title>SneakyESP Setup</title></head>"
+        "<center>"
+        "<h1>SneakyESP Setup Page</h1><br>"
+        "<form action=\"/config\" method=\"GET\">"
+        "SSID<input type=\"text\" name=\"SSID\"/><br>"
+        "Password<input type=\"password\" name=\"PASSWORD\"/><br>"
+        "</form>"
+        "</center>"
+        "</html>\0"
+        ;
+
 
 //functions
-void SetupSocketConfig_socketSetup(void);
-void SetupSocketConfig_socketConnectCallbackFunction(void *);
-void SetupSocketConfig_socketDisconnectCallbackFunction(void *);
-void SetupSocketConfig_socketDataRecvCallbackFunction(void *, char *, unsigned short);
+void SetupSocketConfig_SocketSetup(void);
+void SetupSocketConfig_SocketConnectCallbackFunction(void *);
+//void SetupSocketConfig_SocketDisconnectCallbackFunction(void *);
+//void SetupSocketConfig_SocketDataRecvCallbackFunction(void *, char *, unsigned short);
+void SetupSocketConfig_SendStaticWebpage(struct espconn *);
 
 #endif
