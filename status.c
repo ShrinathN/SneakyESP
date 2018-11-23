@@ -3,10 +3,14 @@
  * Description: This file is here to implement the functions in status.h
 */
 #include "status.h"
+#include "user_config.h"
 
 //sets global status
 void ICACHE_FLASH_ATTR Status_setGlobalStatus(enum _globalStatus_ temp)
 {
+#ifdef DEBUG
+    os_printf("[INFO]Setting globalStatus = %d\n", (uint8)temp);
+#endif
     globalStatus = temp;
 }
 
@@ -19,6 +23,9 @@ uint8 ICACHE_FLASH_ATTR Status_getGlobalStatus(void)
 //sets connection status
 void ICACHE_FLASH_ATTR Status_setConnectionStatus(enum _connectionStatus_ temp)
 {
+#ifdef DEBUG
+    os_printf("[INFO]Setting connectionStatus = %d", (uint8)temp);
+#endif
     connectionStatus = temp;
 }
 

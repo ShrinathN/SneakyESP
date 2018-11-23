@@ -33,3 +33,5 @@
 //this is the SSID and Password to the default setup access point
 #define AP_SSID "SneakyESPConfig"
 #define AP_PASSWORD "987654321"
+
+#define DEBUG 0

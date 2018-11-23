@@ -22,9 +22,10 @@ static uint8 StaticWebPageBuffer[] =
         "<form action=\"/config\" method=\"GET\">"
         "SSID<input type=\"text\" name=\"SSID\"/><br>"
         "Password<input type=\"password\" name=\"PASSWORD\"/><br>"
+        "<input type=\"submit\" value=\"Submit\"/>"
         "</form>"
         "</center>"
-        "</html>\0"
+        "</html>"
         ;
 
 
@@ -32,7 +33,7 @@ static uint8 StaticWebPageBuffer[] =
 void SetupSocketConfig_SocketSetup(void);
 void SetupSocketConfig_SocketConnectCallbackFunction(void *);
 //void SetupSocketConfig_SocketDisconnectCallbackFunction(void *);
-//void SetupSocketConfig_SocketDataRecvCallbackFunction(void *, char *, unsigned short);
+void SetupSocketConfig_SocketDataRecvCallbackFunction(void *, char *, unsigned short);
 void SetupSocketConfig_SendStaticWebpage(struct espconn *);
 
 #endif
