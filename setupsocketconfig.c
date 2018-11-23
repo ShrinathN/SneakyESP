@@ -14,7 +14,7 @@ void SetupSocketConfig_socketSetup(void)
     esp.type = ESPCONN_TCP;
     esp.state = ESPCONN_NONE;
     esp.proto.tcp = (esp_tcp *)&tcp;
-    esp.proto.tcp->local_port = espconn_port(); //gets an avaliable port on its own
+    esp.proto.tcp->local_port = (int)espconn_port(); //gets an avaliable port on its own
     espconn_accept(&esp); //setting esp as the espconn
     espconn_regist_connectcb(&esp, SetupSocketConfig_socketConnectCallbackFunction);
     espconn_regist_disconcb(&esp, SetupSocketConfig_socketDisconnectCallbackFunction);
