@@ -24,7 +24,7 @@ uint8 ICACHE_FLASH_ATTR Status_getGlobalStatus(void)
 void ICACHE_FLASH_ATTR Status_setConnectionStatus(enum _connectionStatus_ temp)
 {
 #ifdef DEBUG
-    os_printf("[INFO]Setting connectionStatus = %d", (uint8)temp);
+    os_printf("[INFO]Setting connectionStatus = %d\n", (uint8)temp);
 #endif
     connectionStatus = temp;
 }

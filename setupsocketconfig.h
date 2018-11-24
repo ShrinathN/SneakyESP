@@ -9,6 +9,12 @@
 //data structures used
 static struct espconn esp; //global espconn
 static esp_tcp tcp; //global esp_tcp
+struct httpRequest
+{
+    char * path;
+    uint8 path_len;
+};
+
 
 static uint8 StaticWebPageBuffer[] =
         "HTTP/1.1 200 OK\n"
@@ -35,5 +41,6 @@ void SetupSocketConfig_SocketConnectCallbackFunction(void *);
 //void SetupSocketConfig_SocketDisconnectCallbackFunction(void *);
 void SetupSocketConfig_SocketDataRecvCallbackFunction(void *, char *, unsigned short);
 void SetupSocketConfig_SendStaticWebpage(struct espconn *);
+struct httpRequest * SetupSocketConfig_ParseData(char *, unsigned short);
 
 #endif

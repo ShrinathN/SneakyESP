@@ -40,9 +40,6 @@ void ICACHE_FLASH_ATTR SetupSocketConfig_SocketConnectCallbackFunction(void * ar
     os_printf("[INFO]Client connected on port!\n");
 #endif
     Status_setConnectionStatus(CONNECTIONSTATUS_CONNECTED); //set status as connected
-    SetupSocketConfig_SendStaticWebpage((struct espconn *)arg); //sending over the static page
-    espconn_disconnect((struct espconn *)arg); //disconnecting from the host
-    Status_setConnectionStatus(CONNECTIONSTATUS_NOTCONNECTED); //set status as not connected
 #ifdef DEBUG
     os_printf("[INFO]Disconnected from client!\n");
 #endif
@@ -72,6 +69,28 @@ void ICACHE_FLASH_ATTR SetupSocketConfig_SendStaticWebpage(struct espconn * my_e
 void ICACHE_FLASH_ATTR SetupSocketConfig_SocketDataRecvCallbackFunction(void * arg, char * pdata, unsigned short len)
 {
 #ifdef DEBUG
-    os_printf("[INFO]Data sent\n%s\n", pdata);
+    os_printf("[INFO]Data received\n%s\n", pdata);
+#endif
+    SetupSocketConfig_ParseData(pdata, len);
+    SetupSocketConfig_SendStaticWebpage((struct espconn *)arg); //sending over the static page
+    espconn_disconnect((struct espconn *)arg); //disconnecting from the host
+    Status_setConnectionStatus(CONNECTIONSTATUS_NOTCONNECTED); //set status as not connected
+}
+
+/* Description: This function parses the input HTTP request given to it, and calls the appropriate response
+ * Input: pdata is the pointer to the data
+ * len is the length of the data
+ * Output: a pointer to a httpRequest data structure, it will contain a pointer to the path, and length of the path string
+*/
+struct httpRequest * ICACHE_FLASH_ATTR SetupSocketConfig_ParseData(char * pdata, unsigned short len)
+{
+#ifdef DEBUG
+    os_printf("[INFO]Parsing Data...");
+#endif
+    struct httpRequest * req = (struct httpRequest *)os_zalloc(sizeof(struct httpRequest)); //allocating memory for the httpRequest structure
+    req->path = os_strstr(pdata,"/"); //pointer to first '/'
+    req->path_len = (uint8)((char *)os_strstr(req->path, " ") - (char *)req->path); //pointer to first " ", minus pointer to beginning (that is, the first "/"), basically gives us the length of the request string, including "/"
+#ifdef DEBUG
+    os_printf("[INFO]Parsing Data...");
 #endif
 }
