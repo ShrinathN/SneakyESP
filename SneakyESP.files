@@ -1,4 +1,5 @@
 Makefile
+error_response.txt
 setup_page.html
 setupconnection.c
 setupconnection.h

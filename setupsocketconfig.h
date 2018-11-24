@@ -15,8 +15,13 @@ struct httpRequest
     uint8 path_len;
 };
 
+static char StaticErrorMessageBuffer[] =
+        "HTTP/1.1 404 Not Found\n"
+        "Content-Type: text/html\n"
+        "Connection: close\n\n"
+        ;
 
-static uint8 StaticWebPageBuffer[] =
+static char StaticWebPageBuffer[] =
         "HTTP/1.1 200 OK\n"
         "Content-Type: text/html\n"
         "Connection: close\n\n"
@@ -33,7 +38,7 @@ static uint8 StaticWebPageBuffer[] =
         "</center>"
         "</html>"
         ;
-
+static
 
 //functions
 void SetupSocketConfig_SocketSetup(void);
@@ -41,6 +46,7 @@ void SetupSocketConfig_SocketConnectCallbackFunction(void *);
 //void SetupSocketConfig_SocketDisconnectCallbackFunction(void *);
 void SetupSocketConfig_SocketDataRecvCallbackFunction(void *, char *, unsigned short);
 void SetupSocketConfig_SendStaticWebpage(struct espconn *);
-struct httpRequest * SetupSocketConfig_ParseData(char *, unsigned short);
+void SetupSocketConfig_SendErrorWebpage(struct espconn *);
+struct httpRequest * SetupSocketConfig_ParseData(struct espconn *, char *, unsigned short);
 
 #endif

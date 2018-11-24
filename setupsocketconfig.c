@@ -54,7 +54,18 @@ void ICACHE_FLASH_ATTR SetupSocketConfig_SendStaticWebpage(struct espconn * my_e
 #ifdef DEBUG
     os_printf("[INFO]Sending data to client...");
 #endif
-    espconn_send(my_esp, StaticWebPageBuffer, (uint16)os_strlen((char *)StaticWebPageBuffer));
+    espconn_send(my_esp, (uint8 *)StaticWebPageBuffer, (uint16)os_strlen(StaticWebPageBuffer));
+#ifdef DEBUG
+    os_printf("Done!\n");
+#endif
+}
+
+void ICACHE_FLASH_ATTR SetupSocketConfig_SendErrorWebpage(struct espconn * my_esp)
+{
+#ifdef DEBUG
+    os_printf("[INFO]Sending error page to client...");
+#endif
+    espconn_send(my_esp, (uint8 *)StaticErrorMessageBuffer, (uint16)os_strlen(StaticErrorMessageBuffer));
 #ifdef DEBUG
     os_printf("Done!\n");
 #endif
@@ -71,8 +82,7 @@ void ICACHE_FLASH_ATTR SetupSocketConfig_SocketDataRecvCallbackFunction(void * a
 #ifdef DEBUG
     os_printf("[INFO]Data received\n%s\n", pdata);
 #endif
-    SetupSocketConfig_ParseData(pdata, len);
-    SetupSocketConfig_SendStaticWebpage((struct espconn *)arg); //sending over the static page
+    SetupSocketConfig_ParseData((struct espconn *)arg, pdata, len);
     espconn_disconnect((struct espconn *)arg); //disconnecting from the host
     Status_setConnectionStatus(CONNECTIONSTATUS_NOTCONNECTED); //set status as not connected
 }
@@ -82,15 +92,20 @@ void ICACHE_FLASH_ATTR SetupSocketConfig_SocketDataRecvCallbackFunction(void * a
  * len is the length of the data
  * Output: a pointer to a httpRequest data structure, it will contain a pointer to the path, and length of the path string
 */
-struct httpRequest * ICACHE_FLASH_ATTR SetupSocketConfig_ParseData(char * pdata, unsigned short len)
+struct httpRequest * ICACHE_FLASH_ATTR SetupSocketConfig_ParseData(struct espconn * arg,char * pdata, unsigned short len)
 {
 #ifdef DEBUG
-    os_printf("[INFO]Parsing Data...");
+    os_printf("[INFO]Parsing Data...\n");
 #endif
     struct httpRequest * req = (struct httpRequest *)os_zalloc(sizeof(struct httpRequest)); //allocating memory for the httpRequest structure
     req->path = os_strstr(pdata,"/"); //pointer to first '/'
     req->path_len = (uint8)((char *)os_strstr(req->path, " ") - (char *)req->path); //pointer to first " ", minus pointer to beginning (that is, the first "/"), basically gives us the length of the request string, including "/"
 #ifdef DEBUG
-    os_printf("[INFO]Parsing Data...");
+    *(req->path + req->path_len) = 0;
+    os_printf("*\t%s\nDone!",req->path);
 #endif
+    if(os_strcmp("/favicon.ico", req->path) != 0) //if its a favicon request, send the error message
+        SetupSocketConfig_SendErrorWebpage(arg);
+    else if(os_strcmp("/", req->path) != 0)
+        SetupSocketConfig_SendStaticWebpage((struct espconn *)arg); //sending over the static page
 }
