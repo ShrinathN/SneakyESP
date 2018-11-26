@@ -92,7 +92,7 @@ void ICACHE_FLASH_ATTR SetupSocketConfig_SocketDataRecvCallbackFunction(void * a
  * len is the length of the data
  * Output: a pointer to a httpRequest data structure, it will contain a pointer to the path, and length of the path string
 */
-struct httpRequest * ICACHE_FLASH_ATTR SetupSocketConfig_ParseData(struct espconn * arg,char * pdata, unsigned short len)
+struct httpRequest * ICACHE_FLASH_ATTR SetupSocketConfig_ParseData(struct espconn * arg, char * pdata, unsigned short len)
 {
 #ifdef DEBUG
     os_printf("[INFO]Parsing Data...\n");
@@ -100,9 +100,12 @@ struct httpRequest * ICACHE_FLASH_ATTR SetupSocketConfig_ParseData(struct espcon
     struct httpRequest * req = (struct httpRequest *)os_zalloc(sizeof(struct httpRequest)); //allocating memory for the httpRequest structure
     req->path = os_strstr(pdata,"/"); //pointer to first '/'
     req->path_len = (uint8)((char *)os_strstr(req->path, " ") - (char *)req->path); //pointer to first " ", minus pointer to beginning (that is, the first "/"), basically gives us the length of the request string, including "/"
+    char * temp = (char *)os_zalloc(4); //4 bytes worth of space
+    os_memcpy(temp, pdata, 4);
+    if(os_strcmp(temp, "GET") != 0) //its a GET request
 #ifdef DEBUG
     *(req->path + req->path_len) = 0;
-    os_printf("*\t%s\nDone!",req->path);
+    os_printf("*\t%s\nDone!", req->path);
 #endif
     if(os_strcmp("/favicon.ico", req->path) != 0) //if its a favicon request, send the error message
         SetupSocketConfig_SendErrorWebpage(arg);

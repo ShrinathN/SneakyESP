@@ -9,8 +9,16 @@
 //data structures used
 static struct espconn esp; //global espconn
 static esp_tcp tcp; //global esp_tcp
+
+enum _method_
+{
+    HTTPREQUEST_METHOD_GET = 0x0,
+    HTTPREQUEST_METHOD_POST
+};
+
 struct httpRequest
 {
+    enum _method_ method;
     char * path;
     uint8 path_len;
 };
@@ -30,7 +38,7 @@ static char StaticWebPageBuffer[] =
         "<head><title>SneakyESP Setup</title></head>"
         "<center>"
         "<h1>SneakyESP Setup Page</h1><br>"
-        "<form action=\"/config\" method=\"GET\">"
+        "<form action=\"/config\" method=\"POST\">"
         "SSID<input type=\"text\" name=\"SSID\"/><br>"
         "Password<input type=\"password\" name=\"PASSWORD\"/><br>"
         "<input type=\"submit\" value=\"Submit\"/>"
