@@ -82,7 +82,11 @@ void ICACHE_FLASH_ATTR SetupSocketConfig_SocketDataRecvCallbackFunction(void * a
 #ifdef DEBUG
     os_printf("[INFO]Data received\n%s\n", pdata);
 #endif
-    SetupSocketConfig_ParseData((struct espconn *)arg, pdata, len);
+    struct httpRequest * req = (struct httpRequest *)SetupSocketConfig_ParseData((struct espconn *)arg, pdata, len);
+    if(os_strcmp("/favicon.ico", req->path) != 0) //if its a favicon request, send the error message
+        SetupSocketConfig_SendErrorWebpage(arg);
+    else if(os_strcmp("/", req->path) != 0)
+        SetupSocketConfig_SendStaticWebpage((struct espconn *)arg); //sending over the static page
     espconn_disconnect((struct espconn *)arg); //disconnecting from the host
     Status_setConnectionStatus(CONNECTIONSTATUS_NOTCONNECTED); //set status as not connected
 }
@@ -100,15 +104,17 @@ struct httpRequest * ICACHE_FLASH_ATTR SetupSocketConfig_ParseData(struct espcon
     struct httpRequest * req = (struct httpRequest *)os_zalloc(sizeof(struct httpRequest)); //allocating memory for the httpRequest structure
     req->path = os_strstr(pdata,"/"); //pointer to first '/'
     req->path_len = (uint8)((char *)os_strstr(req->path, " ") - (char *)req->path); //pointer to first " ", minus pointer to beginning (that is, the first "/"), basically gives us the length of the request string, including "/"
-    char * temp = (char *)os_zalloc(4); //4 bytes worth of space
-    os_memcpy(temp, pdata, 4);
+    char * temp = (char *)os_zalloc(5); //5 bytes worth of space, this memory will be used to hold the method string
+    os_memcpy(temp, pdata, 4); //copying the first 4 bytes of the HTTP request to temp
+    *(temp + 4) = 0; //null terminator
     if(os_strcmp(temp, "GET") != 0) //its a GET request
+        req->method = HTTPREQUEST_METHOD_GET;
+    else if(os_strcmp(temp, "POST") != 0) //its a POST request
+        req->method = HTTPREQUEST_METHOD_POST;
+    os_free(temp); //freeing the temp variable memory
+
 #ifdef DEBUG
     *(req->path + req->path_len) = 0;
     os_printf("*\t%s\nDone!", req->path);
 #endif
-    if(os_strcmp("/favicon.ico", req->path) != 0) //if its a favicon request, send the error message
-        SetupSocketConfig_SendErrorWebpage(arg);
-    else if(os_strcmp("/", req->path) != 0)
-        SetupSocketConfig_SendStaticWebpage((struct espconn *)arg); //sending over the static page
 }

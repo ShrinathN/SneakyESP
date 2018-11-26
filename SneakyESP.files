@@ -1,6 +1,6 @@
 Makefile
 error_response.txt
-setup_page.html
+setup_page.txt
 setupconnection.c
 setupconnection.h
 setupsocketconfig.c
