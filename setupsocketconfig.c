@@ -22,7 +22,7 @@ void ICACHE_FLASH_ATTR SetupSocketConfig_SocketSetup(void)
     esp.proto.tcp->local_port = 80; //starts listening on port 80
     espconn_accept(&esp); //setting esp as the espconn
     espconn_regist_connectcb(&esp, SetupSocketConfig_SocketConnectCallbackFunction);
-//    espconn_regist_disconcb(&esp, SetupSocketConfig_SocketDisconnectCallbackFunction);
+    //    espconn_regist_disconcb(&esp, SetupSocketConfig_SocketDisconnectCallbackFunction);
     espconn_regist_recvcb(&esp, SetupSocketConfig_SocketDataRecvCallbackFunction);
 #ifdef DEBUG
     os_printf("Done!\n");
@@ -60,6 +60,12 @@ void ICACHE_FLASH_ATTR SetupSocketConfig_SendStaticWebpage(struct espconn * my_e
 #endif
 }
 
+/* Description: This function sends the static error message/webpage
+ * Input: pointer to the espconn struct
+ * pdata is the pointer to the data
+ * len is the length of the data
+ * Output: none
+*/
 void ICACHE_FLASH_ATTR SetupSocketConfig_SendErrorWebpage(struct espconn * my_esp)
 {
 #ifdef DEBUG
@@ -83,10 +89,19 @@ void ICACHE_FLASH_ATTR SetupSocketConfig_SocketDataRecvCallbackFunction(void * a
     os_printf("[INFO]Data received\n%s\n", pdata);
 #endif
     struct httpRequest * req = (struct httpRequest *)SetupSocketConfig_ParseData((struct espconn *)arg, pdata, len);
-    if(os_strcmp("/favicon.ico", req->path) != 0) //if its a favicon request, send the error message
-        SetupSocketConfig_SendErrorWebpage(arg);
-    else if(os_strcmp("/", req->path) != 0)
-        SetupSocketConfig_SendStaticWebpage((struct espconn *)arg); //sending over the static page
+    if(req->method == HTTPREQUEST_METHOD_GET) //if request is GET, here's some predefined responses
+    {
+        if(os_strcmp("/favicon.ico", req->path) != 0) //if its a favicon request, send the error message
+            SetupSocketConfig_SendErrorWebpage(arg);
+        else if(os_strcmp("/", req->path) != 0)
+            SetupSocketConfig_SendStaticWebpage((struct espconn *)arg); //sending over the static page
+        else //anything else and send the error page
+            SetupSocketConfig_SendErrorWebpage((struct espconn *)arg);
+    }
+    else if(req->method == HTTPREQUEST_METHOD_POST) //parse variables
+    {
+
+    }
     espconn_disconnect((struct espconn *)arg); //disconnecting from the host
     Status_setConnectionStatus(CONNECTIONSTATUS_NOTCONNECTED); //set status as not connected
 }
