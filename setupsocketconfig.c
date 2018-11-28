@@ -91,16 +91,10 @@ void ICACHE_FLASH_ATTR SetupSocketConfig_SocketDataRecvCallbackFunction(void * a
     struct httpRequest * req = (struct httpRequest *)SetupSocketConfig_ParseData((struct espconn *)arg, pdata, len);
     if(req->method == HTTPREQUEST_METHOD_GET) //if request is GET, here's some predefined responses
     {
-        if(os_strcmp("/favicon.ico", req->path) != 0) //if its a favicon request, send the error message
-            SetupSocketConfig_SendErrorWebpage(arg);
-        else if(os_strcmp("/", req->path) != 0)
+        if(os_strcmp("/", req->path) != 0)
             SetupSocketConfig_SendStaticWebpage((struct espconn *)arg); //sending over the static page
         else //anything else and send the error page
             SetupSocketConfig_SendErrorWebpage((struct espconn *)arg);
-    }
-    else if(req->method == HTTPREQUEST_METHOD_POST) //parse variables
-    {
-
     }
     espconn_disconnect((struct espconn *)arg); //disconnecting from the host
     Status_setConnectionStatus(CONNECTIONSTATUS_NOTCONNECTED); //set status as not connected
@@ -125,9 +119,24 @@ struct httpRequest * ICACHE_FLASH_ATTR SetupSocketConfig_ParseData(struct espcon
     if(os_strcmp(temp, "GET") != 0) //its a GET request
         req->method = HTTPREQUEST_METHOD_GET;
     else if(os_strcmp(temp, "POST") != 0) //its a POST request
-        req->method = HTTPREQUEST_METHOD_POST;
+        req->method = HTTPREQUEST_METHOD_POST; //set request method as POST
     os_free(temp); //freeing the temp variable memory
-
+    if(req->method == HTTPREQUEST_METHOD_POST) //since the request is a POST, te variables need to be parsed
+    {
+        req->variables_num = 0;
+        char * temp_post_start = (char *)(os_strstr(pdata, "\r\n\r\n") + 4);
+        temp = temp_post_start;
+        while(*temp != 0)
+        {
+            if(*temp == '&')
+                req->variables_num++;
+            temp++;
+        }
+        req->variables_num++; //inc by one, now this equals no. of variables in request
+        req->post_variable = (char **)os_malloc(sizeof(char *) * req->variables_num);
+        req->post_value = (char **)os_malloc(sizeof(char *) * req->variables_num);
+        temp = temp_post_start;
+    }
 #ifdef DEBUG
     *(req->path + req->path_len) = 0;
     os_printf("*\t%s\nDone!", req->path);

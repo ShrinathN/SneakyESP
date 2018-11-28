@@ -21,6 +21,9 @@ struct httpRequest
     enum _method_ method;
     char * path;
     uint8 path_len;
+    uint8 variables_num;
+    char **post_variable;
+    char **post_value;
 };
 
 static char StaticErrorMessageBuffer[] =
