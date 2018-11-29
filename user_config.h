@@ -34,4 +34,4 @@
 #define AP_SSID "SneakyESPConfig"
 #define AP_PASSWORD "987654321"
 
-//#define DEBUG 0
+#define DEBUG 0

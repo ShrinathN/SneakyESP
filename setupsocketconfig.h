@@ -49,7 +49,6 @@ static char StaticWebPageBuffer[] =
         "</center>"
         "</html>"
         ;
-static
 
 //functions
 void SetupSocketConfig_SocketSetup(void);
@@ -58,6 +57,6 @@ void SetupSocketConfig_SocketConnectCallbackFunction(void *);
 void SetupSocketConfig_SocketDataRecvCallbackFunction(void *, char *, unsigned short);
 void SetupSocketConfig_SendStaticWebpage(struct espconn *);
 void SetupSocketConfig_SendErrorWebpage(struct espconn *);
-struct httpRequest * SetupSocketConfig_ParseData(struct espconn *, char *, unsigned short);
+struct httpRequest * SetupSocketConfig_ParseData(char *, unsigned short);
 
 #endif
