@@ -33,22 +33,26 @@ static char StaticErrorMessageBuffer[] =
         ;
 
 static char StaticWebPageBuffer[] =
-        "HTTP/1.1 200 OK\n"
-        "Content-Type: text/html\n"
-        "Connection: close\n\n"
-        "<!DOCTYPE html>"
-        "<html>"
-        "<head><title>SneakyESP Setup</title></head>"
-        "<center>"
-        "<h1>SneakyESP Setup Page</h1><br>"
-        "<form action=\"/config\" method=\"POST\">"
-        "SSID<input type=\"text\" name=\"SSID\"/><br>"
-        "Password<input type=\"password\" name=\"PASSWORD\"/><br>"
-        "<input type=\"submit\" value=\"Submit\"/>"
-        "</form>"
-        "</center>"
-        "</html>"
-        ;
+		"HTTP/1.1 200 OK\n"
+		"Content-Type: text/html\n"
+		"Connection: close\n\n"
+		"<!DOCTYPE html>"
+		"<html>"
+		"<head><title>SneakyESP Setup</title>"
+		"<style>body {background-image: linear-gradient(blue,lightblue, white);}</style>"
+		"</head>"
+		"<body>"
+		"<center>"
+		"<h1>SneakyESP Setup Page</h1><br>"
+		"<form action=\"/config\" method=\"POST\">"
+		"SSID<input type=\"text\" name=\"SSID\"/><br>"
+		"Password<input type=\"password\" name=\"PASSWORD\"/><br>"
+		"<input type=\"submit\" value=\"Submit\"/>"
+		"</form>"
+		"</center>"
+		"</body>"
+		"</html>"
+		;
 
 //functions
 void SetupSocketConfig_SocketSetup(void);

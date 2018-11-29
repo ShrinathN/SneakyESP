@@ -128,12 +128,12 @@ struct httpRequest * ICACHE_FLASH_ATTR SetupSocketConfig_ParseData(char * pdata,
 #ifdef DEBUG
 	os_printf("\t[INFO]Length %d\n", req->path_len);
 #endif
-	char * temp = (char *)os_zalloc(6); //5 bytes worth of space, this memory will be used to hold the method string
+	char * temp = (char *)os_zalloc(5); //5 bytes worth of space, this memory will be used to hold the method string
 	os_memcpy(temp, pdata, 5); //copying the first 4 bytes of the HTTP request to temp
-	*(temp + 5) = 0; //null terminator
-	if(os_strcmp(temp, "GET ") != 0) //its a GET request
+	*(temp + 4) = 0; //null terminator
+	if(os_strcmp(temp, "GET ") == 0) //its a GET request
 		req->method = HTTPREQUEST_METHOD_GET;
-	else if(os_strcmp(temp, "POST") != 0) //its a POST request
+	else if(os_strcmp(temp, "POST") == 0) //its a POST request
 		req->method = HTTPREQUEST_METHOD_POST; //set request method as POST
 	os_free(temp); //freeing the temp variable memory
 	if(req->method == HTTPREQUEST_METHOD_POST) //since the request is a POST, te variables need to be parsed
