@@ -16,14 +16,29 @@ enum _method_
     HTTPREQUEST_METHOD_POST
 };
 
+struct _httpRequestMethodArgsPost_
+{
+	char **post_variable;
+	char **post_value;
+};
+
+struct _httpRequestMethodArgsGet_
+{
+	char **get_variable;
+	char **get_value;
+};
+
 struct httpRequest
 {
     enum _method_ method;
     char * path;
     uint8 path_len;
     uint8 variables_num;
-    char **post_variable;
-    char **post_value;
+	union
+	{
+		struct _httpRequestMethodArgsPost_ * httpRequestMethodArgsPost;
+		struct _httpRequestMethodArgsGet_ * httpRequestMethodArgsGet;
+	}data;
 };
 
 static char StaticErrorMessageBuffer[] =
@@ -62,6 +77,7 @@ void SetupSocketConfig_SocketConnectCallbackFunction(void *);
 void SetupSocketConfig_SocketDataRecvCallbackFunction(void *, char *, unsigned short);
 void SetupSocketConfig_SendStaticWebpage(struct espconn *);
 void SetupSocketConfig_SendErrorWebpage(struct espconn *);
-struct httpRequest * SetupSocketConfig_ParseData(char *, unsigned short);
-
+struct httpRequest * SetupSocketConfig_ParseRequest(char *, unsigned short);
+void SetupSocketConfig_ParsePOST(char *, unsigned short, struct httpRequest *);
+void SetupSocketConfig_ParseGET(char *, unsigned short, struct httpRequest *);
 #endif
