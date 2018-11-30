@@ -99,12 +99,11 @@ void ICACHE_FLASH_ATTR SetupSocketConfig_SocketDataRecvCallbackFunction(void * a
 	else if(req->method == HTTPREQUEST_METHOD_POST)
 	{
 #ifdef DEBUG
-		uint8 * temp_i = (uint8 *)os_zalloc(sizeof(uint8));
-		*temp_i = 0;
-		while(*temp_i < req->variables_num)
+		uint8 temp_i = 0;
+		while(temp_i < req->variables_num)
 		{
-			os_printf("%s=%s\n",req->data.httpRequestMethodArgsPost->post_variable[*temp_i], req->data.httpRequestMethodArgsPost->post_value[*temp_i]);
-			(*temp_i)++;
+			os_printf("%s=%s\n",req->data.httpRequestMethodArgsPost->post_variable[temp_i], req->data.httpRequestMethodArgsPost->post_value[temp_i]);
+			(temp_i)++;
 		}
 #endif
 	}
@@ -163,9 +162,9 @@ void SetupSocketConfig_ParsePOST(char * _requestString_, unsigned short _length_
 	_request_->variables_num = 1;
 	char * temp_post_start = (char *)(os_strstr(_requestString_, "\r\n\r\n") + 4); //starting of the POST variables
 	char * temp = temp_post_start;
-	uint8 * length_post_str = (uint8 *)os_zalloc(sizeof(uint8));
-	*length_post_str = (uint8)(_length_ - (temp - _requestString_));
-	temp[*length_post_str] = 0; //setting last character as null terminator
+	uint8 length_post_str = 0;
+	length_post_str = (uint8)(_length_ - (temp - _requestString_));
+	temp[length_post_str] = 0; //setting last character as null terminator
 	//counting number of variables and values
 	while(*temp != 0) //travelling through the array
 	{
@@ -181,52 +180,46 @@ void SetupSocketConfig_ParsePOST(char * _requestString_, unsigned short _length_
 	_request_->data.httpRequestMethodArgsPost->post_variable = (char **)os_malloc(sizeof(char *) * _request_->variables_num); //allocating pointers to number of variables and their values
 	_request_->data.httpRequestMethodArgsPost->post_value = (char **)os_malloc(sizeof(char *) * _request_->variables_num);
 	temp = temp_post_start;
-	//allocating memory for counters
-	uint8 * temp_counter = (uint8 *)os_zalloc(sizeof(uint8)); //will keep count of characters since last point of interest
-	uint8 * temp_postcounter = (uint8 *)os_zalloc(sizeof(uint8)); //will keep count of variables
-//	*temp_postcounter = 0; //not really needed because we're using os_zalloc
+	uint8 temp_counter; //will keep count of characters since last point of interest
+	uint8 temp_postcounter;//will keep count of variables
+	temp_postcounter = 0;
 	//TODO: This might mess up malformed POST requests, find a better way
-	while(*temp_postcounter < _request_->variables_num) //while all variables and their values are not found
+	while(temp_postcounter < _request_->variables_num) //while all variables and their values are not found
 	{
-		*temp_counter = 0;
+		temp_counter = 0;
 		//finding the variable name
 		while(*temp != '=') //will keep parsing until a '=' is found
 		{
-			(*temp_counter)++;
+			(temp_counter)++;
 			temp++;
 		}
 		//copying variable string to memory
-		_request_->data.httpRequestMethodArgsPost->post_variable[*temp_postcounter] = (char *)os_malloc(*temp_counter + 1);//allocating memory for variable string
-		os_memcpy(_request_->data.httpRequestMethodArgsPost->post_variable[*temp_postcounter], (temp - *temp_counter)/*temp is current pointer location, *temp_counter number of bytes between temp and '='*/, *temp_counter);//copying string data to memory
-		_request_->data.httpRequestMethodArgsPost->post_variable[*temp_postcounter][*temp_counter] = 0;//setting null terminator at last
+		_request_->data.httpRequestMethodArgsPost->post_variable[temp_postcounter] = (char *)os_malloc(temp_counter + 1);//allocating memory for variable string
+		os_memcpy(_request_->data.httpRequestMethodArgsPost->post_variable[temp_postcounter], (temp - temp_counter), temp_counter);//copying string data to memory
+		_request_->data.httpRequestMethodArgsPost->post_variable[temp_postcounter][temp_counter] = 0;//setting null terminator at last
 		temp++; //incrementing character, so that the next string does not start at '='
 		//this means the variable name has been found, and copied to the memory
 #ifdef DEBUG
-		os_printf("\t[INFO]req->post_variable[%d]=%s\n",*temp_postcounter, _request_->data.httpRequestMethodArgsPost->post_variable[*temp_postcounter]);
+		os_printf("\t[INFO]req->post_variable[%d]=%s\n", temp_postcounter, _request_->data.httpRequestMethodArgsPost->post_variable[temp_postcounter]);
 #endif
 		//now find out the value of the variable
-		*temp_counter = 0; //reseting character counter
+		temp_counter = 0; //reseting character counter
 		while(*temp != '&' && *temp != '\0') //will continue until an '&' or null terminator is found
 		{
-			(*temp_counter)++;
+			(temp_counter)++;
 			temp++;
 		}
 		//copying value string to memory
-		_request_->data.httpRequestMethodArgsPost->post_value[*temp_postcounter] = (char *)os_malloc(*temp_counter + 1);//allocating memory for value string
-		os_memcpy(_request_->data.httpRequestMethodArgsPost->post_value[*temp_postcounter], (temp - *temp_counter), *temp_counter);//copying string data to memory
-		_request_->data.httpRequestMethodArgsPost->post_value[*temp_postcounter][*temp_counter] = 0;//setting null terminator at last
+		_request_->data.httpRequestMethodArgsPost->post_value[temp_postcounter] = (char *)os_malloc(temp_counter + 1);//allocating memory for value string
+		os_memcpy(_request_->data.httpRequestMethodArgsPost->post_value[temp_postcounter], (temp - temp_counter), temp_counter);//copying string data to memory
+		_request_->data.httpRequestMethodArgsPost->post_value[temp_postcounter][temp_counter] = 0;//setting null terminator at last
 		temp++; //incrementing character, so that next string does not start at '&'
 #ifdef DEBUG
-		os_printf("\t[INFO]req->post_value[%d]=%s\n",*temp_postcounter, _request_->data.httpRequestMethodArgsPost->post_value[*temp_postcounter]);
+		os_printf("\t[INFO]req->post_value[%d]=%s\n",temp_postcounter, _request_->data.httpRequestMethodArgsPost->post_value[temp_postcounter]);
 #endif
-		(*temp_postcounter)++; //incrementing number of variable-value pairs
+		(temp_postcounter)++; //incrementing number of variable-value pairs
 	}
 	//freeing up memory
-	os_free(temp);
-	os_free(temp_counter);
-	os_free(temp_postcounter);
-	os_free(temp_post_start);
-	os_free(length_post_str);
 }
 
 /* Description: This function parses the GET request into variables and corresponding value strings
@@ -242,7 +235,12 @@ void SetupSocketConfig_ParseGET(char * _requestString_, unsigned short _length_,
 #endif
 	_request_->variables_num = 1;
 	char * startOfGetVars = (char *)(os_strstr(_requestString_, "?") + 1); //this is the starting of GET variables after the request, +1 because ? is excluded
-	char * temp = startOfGetVars; //temp variable used for parsing
+	char * endOfGetVars = (char *)(os_strstr(startOfGetVars, " ")); //this is the first " " character since the starting of GET variable string
+	uint8 lengthOfGetString = (uint8)(endOfGetVars - startOfGetVars);
+	char * getVarString = (char *)os_malloc(lengthOfGetString + 1); //this pointer will point to the location of copy of GET variables
+	os_memcpy(getVarString, startOfGetVars, lengthOfGetString); //copying string to memory
+	getVarString[lengthOfGetString] = 0; //adding null terminator
+	char * temp = getVarString; //temp variable used for parsing
 	//counting the number of variables
 	while(*temp != 0) //travelling through the array
 	{
@@ -250,5 +248,7 @@ void SetupSocketConfig_ParseGET(char * _requestString_, unsigned short _length_,
 			_request_->variables_num++;
 		temp++;
 	}
+
 //	_request_->variables_num++; //inc by one, now this equals no. of variables in request. Redundary, since _request_->variables_num is being set as 1
+
 }
