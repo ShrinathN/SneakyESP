@@ -248,7 +248,17 @@ void SetupSocketConfig_ParseGET(char * _requestString_, unsigned short _length_,
 			_request_->variables_num++;
 		temp++;
 	}
-
+	_request_->data.httpRequestMethodArgsGet->get_variable = (char **)os_malloc(sizeof(char *) * _request_->variables_num); //allocating pointers to number of variables and their values
+	_request_->data.httpRequestMethodArgsGet->get_value = (char **)os_malloc(sizeof(char *) * _request_->variables_num);
+	temp = getVarString;
+	char * temp_equalsSymbol;
+	uint8 temp_lengthCounter;
+	while(temp != 0)
+	{
+		temp_equalsSymbol = os_strstr(temp, "=");
+		temp_lengthCounter = (uint8)((temp_equalsSymbol - temp) + 1); //+1 is for null terminator
+		os_memcpy()
+	}
 //	_request_->variables_num++; //inc by one, now this equals no. of variables in request. Redundary, since _request_->variables_num is being set as 1
 
 }
