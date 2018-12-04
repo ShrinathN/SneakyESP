@@ -140,6 +140,11 @@ struct httpRequest * ICACHE_FLASH_ATTR SetupSocketConfig_ParseRequest(char * pda
 		req->data.httpRequestMethodArgsPost = (struct _httpRequestMethodArgsPost_ *)os_zalloc(sizeof(struct _httpRequestMethodArgsPost_));
 		SetupSocketConfig_ParsePOST(pdata, len, req);
 	}
+	else if(req->method == HTTPREQUEST_METHOD_GET) //GET parsing, in case there are variables
+	{
+		req->data.httpRequestMethodArgsGet = (struct _httpRequestMethodArgsGet_ *)os_zalloc(sizeof(struct _httpRequestMethodArgsGet_));
+		SetupSocketConfig_ParseGET(pdata, len, req);
+	}
 #ifdef DEBUG
 	*(req->path + req->path_len) = 0;
 	os_printf("*\t%s\n%d\nDone!", req->path, os_strlen(req->path));
@@ -172,7 +177,7 @@ void SetupSocketConfig_ParsePOST(char * _requestString_, unsigned short _length_
 			_request_->variables_num++;
 		temp++;
 	}
-//	_request_->variables_num++; //inc by one, now this equals no. of variables in request. Redundary, since _request_->variables_num is being set as 1
+	//	_request_->variables_num++; //inc by one, now this equals no. of variables in request. Redundary, since _request_->variables_num is being set as 1
 	_request_->data.httpRequestMethodArgsPost = os_zalloc(sizeof(struct _httpRequestMethodArgsPost_));
 #ifdef DEBUG
 	os_printf("\t[INFO]Variables found = %d\n", _request_->variables_num);
@@ -233,32 +238,56 @@ void SetupSocketConfig_ParseGET(char * _requestString_, unsigned short _length_,
 #ifdef DEBUG
 	os_printf("\t[INFO]GET method being parsed!\n");
 #endif
-	_request_->variables_num = 1;
 	char * startOfGetVars = (char *)(os_strstr(_requestString_, "?") + 1); //this is the starting of GET variables after the request, +1 because ? is excluded
-	char * endOfGetVars = (char *)(os_strstr(startOfGetVars, " ")); //this is the first " " character since the starting of GET variable string
-	uint8 lengthOfGetString = (uint8)(endOfGetVars - startOfGetVars);
-	char * getVarString = (char *)os_malloc(lengthOfGetString + 1); //this pointer will point to the location of copy of GET variables
-	os_memcpy(getVarString, startOfGetVars, lengthOfGetString); //copying string to memory
-	getVarString[lengthOfGetString] = 0; //adding null terminator
-	char * temp = getVarString; //temp variable used for parsing
-	//counting the number of variables
-	while(*temp != 0) //travelling through the array
+	if((uint32)startOfGetVars != 1) //this means '?' was found, and this request has variables
 	{
-		if(*temp == '&') //counting the number of '&' symbols
-			_request_->variables_num++;
-		temp++;
-	}
-	_request_->data.httpRequestMethodArgsGet->get_variable = (char **)os_malloc(sizeof(char *) * _request_->variables_num); //allocating pointers to number of variables and their values
-	_request_->data.httpRequestMethodArgsGet->get_value = (char **)os_malloc(sizeof(char *) * _request_->variables_num);
-	temp = getVarString;
-	char * temp_equalsSymbol;
-	uint8 temp_lengthCounter;
-	while(temp != 0)
-	{
-		temp_equalsSymbol = os_strstr(temp, "=");
-		temp_lengthCounter = (uint8)((temp_equalsSymbol - temp) + 1); //+1 is for null terminator
-		os_memcpy()
-	}
-//	_request_->variables_num++; //inc by one, now this equals no. of variables in request. Redundary, since _request_->variables_num is being set as 1
+		char * endOfGetVars = (char *)(os_strstr(startOfGetVars, " ")); //this is the first " " character since the starting of GET variable string
+		uint8 lengthOfGetString = (uint8)(endOfGetVars - startOfGetVars);
+		uint8 temp_getCounter;
+		char * getVarString = (char *)os_malloc(lengthOfGetString + 1); //this pointer will point to the location of copy of GET variables
+		os_memcpy(getVarString, startOfGetVars, lengthOfGetString); //copying string to memory
+		getVarString[lengthOfGetString] = 0; //adding null terminator
+		char * temp = getVarString; //temp variable used for parsing
+		//counting the number of variables
+		_request_->variables_num = 1;
+		while(*temp != 0) //travelling through the array
+		{
+			if(*temp == '&') //counting the number of '&' symbols
+				_request_->variables_num++;
+			temp++;
+		}
+		_request_->data.httpRequestMethodArgsGet->get_variable = (char **)os_malloc(sizeof(char *) * _request_->variables_num); //allocating pointers to number of variables and their values
+		_request_->data.httpRequestMethodArgsGet->get_value = (char **)os_malloc(sizeof(char *) * _request_->variables_num);
+		temp = getVarString;
+		char * temp_equalsSymbol;
+		char * temp_ampersandSymbol;
+		uint8 temp_lengthCounter;
+		temp_getCounter = 0; //temp variables used for storing number of variables processed
+		while(temp_getCounter < _request_->variables_num)
+		{
+			temp_equalsSymbol = os_strstr(temp, "=");
+			temp_lengthCounter = (uint8)((temp_equalsSymbol - temp) + 1); //+1 is for null terminator
+			_request_->data.httpRequestMethodArgsGet->get_variable[temp_getCounter] = (char *)os_malloc(temp_lengthCounter);
+			os_memcpy(_request_->data.httpRequestMethodArgsGet->get_variable[temp_getCounter], temp, temp_lengthCounter - 1);
+			_request_->data.httpRequestMethodArgsGet->get_variable[temp_getCounter][temp_lengthCounter] = 0;
+			temp = temp_equalsSymbol + 1; //so that the next starting char is of the value
 
+			if(temp_getCounter == (_request_->variables_num - 1)) //if its the last variable, match with a null
+				temp_ampersandSymbol = os_strstr(temp, "\0");
+			else
+				temp_ampersandSymbol = os_strstr(temp, "&");
+			temp_lengthCounter = (uint8)((temp_ampersandSymbol - temp) + 1); //+1 is for null terminator
+			_request_->data.httpRequestMethodArgsGet->get_value[temp_getCounter] = (char *)os_malloc(temp_lengthCounter);
+			os_memcpy(_request_->data.httpRequestMethodArgsGet->get_value[temp_getCounter], temp, temp_lengthCounter - 1);
+			_request_->data.httpRequestMethodArgsGet->get_value[temp_getCounter][temp_lengthCounter] = 0;
+			temp = temp_ampersandSymbol + 1; //so that the next starting char is of the value
+
+			temp_getCounter++;
+		}
+	}
+	else
+	{
+		_request_->variables_num = 0;
+	}
+	//	_request_->variables_num++; //inc by one, now this equals no. of variables in request. Redundary, since _request_->variables_num is being set as 1
 }
